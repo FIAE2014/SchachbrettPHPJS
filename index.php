@@ -18,6 +18,7 @@
 
 			echo $output;
         }
+        
         //Funktion um den Buchstaben aus einem Ascii Code zu lesen
 		function unichr($u) {
 		   return mb_convert_encoding('&#' . intval($u) . ';', 'UTF-8', 'HTML-ENTITIES');
@@ -27,12 +28,12 @@
 		$WEISS = "w";
 		$SCHWARZ = "s";
 		$png = ".png";
-		$zugNo = (isset($_GET['zugnummer'])) ? $_GET['zugnummer']*1+1 : 1;
+		$zugNum = (isset($_GET['zugnummer'])) ? $_GET['zugnummer']*1 : 1;
+		$zugFarbe = $zugNum % 2 == 0 ? $SCHWARZ : $WEISS ;
 
-		$zugFarbe = $zugNo % 2 == 0 ? $SCHWARZ : $WEISS ;
-
-		//Sessions
+		//TODO : Sessions
 		//ist die Sessions white sperr für die Schwarzen Züge die input boxen
+		// 
 		$figurPfad='./schachimg/';
 		$leer = 'leer';
 	
@@ -46,7 +47,7 @@
 		 * @param  [string] $_leer
 		 * @return [boolean]
 		 */
-		function isZugErlaubt($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer)
+		function isZugErlaubt($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $_zugFarbe)
 		{
 				debug_to_console("Fuction isZugerLaubt");
 				debug_to_console("isZugErlaubt-paras:".$_vZ.",".$_vS.",".$_nZ.",".$_nS.",".$_leer);
@@ -60,39 +61,25 @@
 				$boo = false;
 				
 			//Wenn die Zugnummer gerade ist, ist weiß am Zug wenn es ungerade ist schwarz	
-			$zugFarbe = ($_GET['zugnummer'] % 2 == 0) ? $SCHWARZ : $WEISS ;
-			
+			debug_to_console("$_zugFarbe");
 								
-			//---------Quellfigur
-			//Holt den String der Figur aus dem Brett Array an der Position vZvS
-			//$quellfigur = explode($WEISS, $_brett[$_vZ][$_vS]);
-			//$isWhiteQ = count($quellfigur);
-			
-			//newWhite PROTO chatAt[0]??
-			
+			//---------Quellfigur			
 			$rawFigur = $_brett[$_vZ][$_vS];
-			$figurFarbe = ($rawFigur == $WEISS ? $WEISS : $SCHWARZ);
+			$figurFarbe = ($rawFigur[0] == $WEISS ? $WEISS : "");
 			$figurName = ($figurFarbe == $WEISS ? substr($rawFigur, 1) : substr($rawFigur, 0));
 
-			//$figurFarbe = ($isWhiteQ ? $WEISS : $SCHWARZ);
-			//$explodeHelp = explode(".", $_brett[$_vZ][$_vS]);
-			//$figurName 	= ($isWhiteQ ? substr(string, start) : $explodeHelp[0]);
-			debug_to_console ("Figur war:".$figurFarbe.$figurName.$br);
-	
-		
+			debug_to_console ("Figur war:".$figurFarbe.$figurName);
 	
 			//------ Ziel Position
-			$zielPosition = explode($WEISS, $_brett[$_nZ][$_nS]);
-			$isZielWhite = count($zielPosition);
+			$zielPosition = $_brett[$_nZ][$_nS];
+			$zielPositionIsLerr = ($zielPosition == "leer" ? true : false);
 	
-			$feldFigurFarbe = ($isZielWhite) ? $WEISS : $SCHWARZ ;
-			debug_to_console ("Gegner Figur ist ".$feldFigurFarbe." <br>");
+			$feldFigurFarbe = (!$zielPositionIsLerr && $zielPosition[0] == $WEISS ) ? $WEISS : $SCHWARZ ;
+			debug_to_console ("Gegner ist/war ".$feldFigurFarbe.$zielPosition." <br>");
 		
-				
 			
-			
-			//Wenn die Zugfarbe ungleich der Figurfarbe? Quasi das der Spieler die richtige Farbe bewegt
-			if($zugFarbe != $figurFarbe)
+			//Wenn die _zugFarbe ungleich der Figurfarbe? Quasi das der Spieler die richtige Farbe bewegt
+			if($_zugFarbe != $figurFarbe)
 			{
 				
 				debug_to_console("Figurname: ". $figurName);
@@ -160,7 +147,7 @@
 	};
 	
 	
-	  
+	$_zug_erlaubt = false;
 	
 	// wurde schon ein Zug gemacht, oder ist es der erste Aufruf ?
 	if(isset($_GET['Weitergabe'])){
@@ -177,21 +164,19 @@
 						
 						
 						$vS = ord (strtoupper($_GET['vonS'])) -64; 
-						$vZ = $_GET['vonZ'];
+						$vZ = (($_GET['vonZ']-8)*-1)+1;
 
-						$nZ = $_GET['nachZ'];
+						$nZ = (($_GET['nachZ']-8)*-1)+1;
 						$nS = ord (strtoupper($_GET['nachS']))-64;
 						
-						$_zug_erlaubt = isZugErlaubt($vZ, $vS, $nZ, $nS, $brett, $leer);
+						$_zug_erlaubt = isZugErlaubt($vZ, $vS, $nZ, $nS, $brett, $leer, $zugNum);
 					
 					//TODO Gucken Feierbaned
 						if($_zug_erlaubt){
-							//$brett = array_reverse($brett);
 							debug_to_console("Zug erlaubt!!!!!!");
-							$brett[(($nZ-8)*-1)+1][$nS]=$brett[(($vZ-8)*-1)+1][$vS];
-							$brett[(($vZ-8)*-1)+1][$vS]=$leer;
-							//$brett = array_reverse($brett);
-								//logToFile($_GET["zugnummer"].":".$figurFarbe.$figurName."Von ".$_GET['vonS'].$vZ." nach ".$_GET['nachS'].$nZ."\n");
+							$zugNum++;
+							$brett[$nZ][$nS]=$brett[$vZ][$vS];
+							$brett[$vZ][$vS]=$leer;
 							
 						}
 						 
@@ -200,7 +185,6 @@
 		
 	}else{
 			debug_to_console("zeichne Brett");
-			$zugFarbe = $WEISS;
 			//Ein Array mit Dateinamen der Bilder
 			$brett = array(
 						array(''),
@@ -235,7 +219,8 @@
 				<input type="text" id="nachZ" size="1" maxlength="1" name="nachZ"></p>
 			</div>
 		
-			<input id="zugnummer" type="hidden" name="zugnummer" value = "<?php echo $zugNo;?>">
+			<input id="zugnummer" type="text" name="zugnummer" value = "<?php echo $zugNum;?>" />
+			<input type="hidden" name="isErlaubt" value="<?php echo !$_zug_erlaubt ? 'true' : 'false'; ?>">
 			<input type="hidden" name="Weitergabe" value="<?php echo htmlspecialchars($Weitergabe, ENT_QUOTES, 'UTF-8'); ?>"/>
 			<input type="submit" value="Zug ausführen"/>
 			<input type="button" name="Reset" value="Reset" onclick="reloadPage();"/>
