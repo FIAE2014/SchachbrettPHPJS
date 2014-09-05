@@ -186,11 +186,11 @@
 					
 					//TODO Gucken Feierbaned
 						if($_zug_erlaubt){
-							$brett = array_reverse($brett);
+							//$brett = array_reverse($brett);
 							debug_to_console("Zug erlaubt!!!!!!");
-							$brett[$nZ-1][$nS]=$brett[$vZ-1][$vS];
-							$brett[$vZ-1][$vS]=$leer;
-							$brett = array_reverse($brett);
+							$brett[(($nZ-8)*-1)+1][$nS]=$brett[(($vZ-8)*-1)+1][$vS];
+							$brett[(($vZ-8)*-1)+1][$vS]=$leer;
+							//$brett = array_reverse($brett);
 								//logToFile($_GET["zugnummer"].":".$figurFarbe.$figurName."Von ".$_GET['vonS'].$vZ." nach ".$_GET['nachS'].$nZ."\n");
 							
 						}
