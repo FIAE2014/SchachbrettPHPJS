@@ -174,21 +174,23 @@
 		if(isset($_GET['vonZ']) && isset($_GET['vonS']) && isset($_GET['nachZ']) && isset($_GET['nachS']))
 		{
 			debug_to_console("Alle Felder sind set");
-			
+						
+						
+						$vS = ord (strtoupper($_GET['vonS'])) -64; 
 						$vZ = $_GET['vonZ'];
-						$vS = ord (strtoupper($_GET['vonS'])) -65+1; 
+
 						$nZ = $_GET['nachZ'];
-						$nS = ord (strtoupper($_GET['nachS']))-65+1;
+						$nS = ord (strtoupper($_GET['nachS']))-64;
 						
 						$_zug_erlaubt = isZugErlaubt($vZ, $vS, $nZ, $nS, $brett, $leer);
 					
-					
+					//TODO Gucken Feierbaned
 						if($_zug_erlaubt){
-
+							$brett = array_reverse($brett);
 							debug_to_console("Zug erlaubt!!!!!!");
-							$brett[$nZ][$nS]=$brett[$vZ][$vS];
-							$brett[$vZ][$vS]=$leer;
-							
+							$brett[$nZ-1][$nS]=$brett[$vZ-1][$vS];
+							$brett[$vZ-1][$vS]=$leer;
+							$brett = array_reverse($brett);
 								//logToFile($_GET["zugnummer"].":".$figurFarbe.$figurName."Von ".$_GET['vonS'].$vZ." nach ".$_GET['nachS'].$nZ."\n");
 							
 						}
@@ -212,6 +214,7 @@
 						array('','wturm','wpferd','wlaufer','wkonig','wdame','wlaufer','wpferd','wturm')
 						
 					); 
+		
 				  $Weitergabe= serialize($brett);
 	}
 	?>
