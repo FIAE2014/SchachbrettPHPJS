@@ -27,7 +27,7 @@
 		$WEISS = "w";
 		$SCHWARZ = "s";
 		$png = ".png";
-		$zugNo = (isset($_GET['zugnummer'])) ? $_GET['zugnummer'] : 1;
+		$zugNo = (isset($_GET['zugnummer'])) ? $_GET['zugnummer']*1+1 : 1;
 
 		$zugFarbe = $zugNo % 2 == 0 ? $SCHWARZ : $WEISS ;
 
@@ -49,17 +49,12 @@
 		function isZugErlaubt($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer)
 		{
 				debug_to_console("Fuction isZugerLaubt");
+				debug_to_console("isZugErlaubt-paras:".$_vZ.",".$_vS.",".$_nZ.",".$_nS.",".$_leer);
 
 				//ENUM
 				$WEISS = "w";
 				$SCHWARZ = "s";
-				
-				//Variablen deklarierungen
-				$_vZ = $_vZ - 1;  	//Von Zeile
-				$_nZ = $_nZ - 1; 	//Nach Zeile
-				$_vS = $_vS - 65; 	//Von Spalte
-				$_nS = $_nS - 65; 	//Nach Spalte
-	
+
 				$br = "<br/>";
 	
 				$boo = false;
@@ -67,7 +62,7 @@
 			//Wenn die Zugnummer gerade ist, ist weiß am Zug wenn es ungerade ist schwarz	
 			$zugFarbe = ($_GET['zugnummer'] % 2 == 0) ? $SCHWARZ : $WEISS ;
 			
-			
+								
 			//---------Quellfigur
 			//Holt den String der Figur aus dem Brett Array an der Position vZvS
 			//$quellfigur = explode($WEISS, $_brett[$_vZ][$_vS]);
@@ -82,7 +77,7 @@
 			//$figurFarbe = ($isWhiteQ ? $WEISS : $SCHWARZ);
 			//$explodeHelp = explode(".", $_brett[$_vZ][$_vS]);
 			//$figurName 	= ($isWhiteQ ? substr(string, start) : $explodeHelp[0]);
-			echo "Figur war:".$figurFarbe.$figurName.$br;
+			debug_to_console ("Figur war:".$figurFarbe.$figurName.$br);
 	
 		
 	
@@ -91,7 +86,7 @@
 			$isZielWhite = count($zielPosition);
 	
 			$feldFigurFarbe = ($isZielWhite) ? $WEISS : $SCHWARZ ;
-			echo "Gegner Figur ist ".$feldFigurFarbe." <br>";
+			debug_to_console ("Gegner Figur ist ".$feldFigurFarbe." <br>");
 		
 				
 			
@@ -100,32 +95,31 @@
 			if($zugFarbe != $figurFarbe)
 			{
 				
-			
+				debug_to_console("Figurname: ". $figurName);
 				switch($figurName){
-					
-
+				 
 					case ("bauer"):
 						debug_to_console("bauer chosen");
-					 	include '/rules/'.$figurName.'.php';
-					 	checkBauer();
+					 	include './rules/'.$figurName.'.php';
+					 	$isZugKorrekt = checkBauer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 						
 						break;
 					case("turm"):
 						
-					 	include '/rules/'.$figurName.'.php';
-					 	checkTurm();
+					 	include './rules/'.$figurName.'.php';
+					 	$isZugKorrekt = checkTurm($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 		
 						break;
 					case("laufer"):
 						
-						include '/rules/'.$figurName.'.php';
-					 	checkLaufer();
+						include './rules/'.$figurName.'.php';
+					 	$isZugKorrekt = checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 						break;
 					
 					case("pferd"):
 						
-						include '/rules/'.$figurName.'.php';
-						checkPferd();
+						include './rules/'.$figurName.'.php';
+						$isZugKorrekt = checkPferd($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 						break;
 	
 					case("koenig"):
@@ -135,10 +129,9 @@
 					case("dame"):
 						
 						
-						include '/rules/turm.php';
-						include '/rules/laufer.php';
-						checkTurm();
-						checkLaufer();
+						include './rules/turm.php';
+						include './rules/laufer.php';
+						$isZugKorrekt = checkTurm || checkLaufer ? true : false;
 
 						break;
 					default:
@@ -183,27 +176,21 @@
 			debug_to_console("Alle Felder sind set");
 			
 						$vZ = $_GET['vonZ'];
-						$vS = ord (strtoupper($_GET['vonS'])); 
+						$vS = ord (strtoupper($_GET['vonS'])) -65+1; 
 						$nZ = $_GET['nachZ'];
-						$nS = ord (strtoupper($_GET['nachS']));
+						$nS = ord (strtoupper($_GET['nachS']))-65+1;
 						
 						$_zug_erlaubt = isZugErlaubt($vZ, $vS, $nZ, $nS, $brett, $leer);
-						var_dump($_zug_erlaubt);
-						debug_to_console($_zug_erlaubt);
+					
+					
 						if($_zug_erlaubt){
 
-							$zaehler = $_GET["zugnummer"] * 1 + 1;
-						
-							$brett[$nZ][$nS-66]=$brett[$vZ][$vS-66];
-							$brett[$vZ][$vS-66]=$leer;
+							debug_to_console("Zug erlaubt!!!!!!");
+							$brett[$nZ][$nS]=$brett[$vZ][$vS];
+							$brett[$vZ][$vS]=$leer;
 							
-								//Der Aktuelle Zug wird in die Log geschrieben
-								logToFile($_GET["zugnummer"].":".$figurFarbe.$figurName."Von ".$_GET['vonS'].$vZ." nach ".$_GET['nachS'].$nZ."\n");
+								//logToFile($_GET["zugnummer"].":".$figurFarbe.$figurName."Von ".$_GET['vonS'].$vZ." nach ".$_GET['nachS'].$nZ."\n");
 							
-						}
-						else{
-							$zaehler = $_GET["zugnummer"] * 1 ;
-							echo $zaehler;
 						}
 						 
 						$Weitergabe = serialize($brett); 
@@ -211,7 +198,6 @@
 		
 	}else{
 			debug_to_console("zeichne Brett");
-			$zaehler = 1;
 			$zugFarbe = $WEISS;
 			//Ein Array mit Dateinamen der Bilder
 			$brett = array(
@@ -246,7 +232,7 @@
 				<input type="text" id="nachZ" size="1" maxlength="1" name="nachZ"></p>
 			</div>
 		
-			<input id="zugnummer" type="hidden" name="zugnummer" value = "<?php echo $zaehler;?>">
+			<input id="zugnummer" type="hidden" name="zugnummer" value = "<?php echo $zugNo;?>">
 			<input type="hidden" name="Weitergabe" value="<?php echo htmlspecialchars($Weitergabe, ENT_QUOTES, 'UTF-8'); ?>"/>
 			<input type="submit" value="Zug ausführen"/>
 			<input type="button" name="Reset" value="Reset" onclick="reloadPage();"/>
@@ -287,6 +273,6 @@ echo("</table>");
 			</table>
 		</body>
 				<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-				<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+				<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script> 
 				<script src="spiel.js"></script>
 </html>		

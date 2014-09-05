@@ -18,7 +18,7 @@
 				var zaehler  = $("#zugnummer").val();
 				
 				//Wenn die Zugummer gerade und figur weiß is ODER zugnummer ungerade und schwarz
-				if ((zaehler % 2 != 0 && isWhite) || (zaehler % 2 == 0 && !isWhite) && !Leer ) {
+				if ((zaehler % 2 != 0 && isWhite) || (zaehler % 2 == 0 && !isWhite) && !leer ) {
 					
 					$("#vonS").val(String.fromCharCode(spalte+64));
 					$("#vonZ").val(zeile);
