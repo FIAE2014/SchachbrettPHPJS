@@ -6,7 +6,7 @@ function checkBauer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $_feldFigurFarbe, $
 	$_isZugKorrekt = false;
 	if ( (($_vZ*8+$_vS)-($_nZ*8+$_nS)) % 8 == 0 ){       // 8,16,......{  // geht nicht schräg
 		debug_to_console("1. if");
-							if(($_vZ == 1) || ($_vZ == 6) ){// wenn erster Zug   wären 8 oder 16 erlaubt{
+							if(($_vZ == 2) || ($_vZ == 7) ){// wenn erster Zug   wären 8 oder 16 erlaubt{
 								$_isZugKorrekt = (abs($_vZ-$_nZ) < 3 ? true : false);
 								debug_to_console("2. if");
 							}
