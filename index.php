@@ -86,7 +86,7 @@
 				switch($figurName){
 				 
 					case ("bauer"):
-						debug_to_console("bauer chosen");
+					
 					 	include './rules/'.$figurName.'.php';
 					 	$isZugKorrekt = checkBauer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 						
@@ -118,7 +118,7 @@
 						
 						include './rules/turm.php';
 						include './rules/laufer.php';
-						$isZugKorrekt = checkTurm || checkLaufer ? true : false;
+						$isZugKorrekt = checkTurm($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe) || checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe) ? true : false;
 
 						break;
 					default:
@@ -168,7 +168,9 @@
 
 						$nZ = (($_GET['nachZ']-8)*-1)+1;
 						$nS = ord (strtoupper($_GET['nachS']))-64;
-						
+						echo "nZ:".$nZ;
+						echo "nS:".$nS;
+						echo "--------------";
 						$_zug_erlaubt = isZugErlaubt($vZ, $vS, $nZ, $nS, $brett, $leer, $zugNum);
 					
 					//TODO Gucken Feierbaned
