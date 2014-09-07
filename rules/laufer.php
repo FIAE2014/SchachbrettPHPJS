@@ -16,14 +16,14 @@ function checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $_feldFigurFarbe, 
 
 			if ($abstand%7==0) {
 				$isRichtunOK = true;
-				for ($i=$pos1+($richtung*7); $i <= $pos2 || $i >= $pos2 ; $i=$i+($richtung*7))
+				for ($i=$pos1+($richtung*7); $i < $pos2 || $i > $pos2 ; $i=$i+($richtung*7))
 				{
 
-					debug_to_console("floor:".floor($i/7)." & Modulo: ". $i%8);
-					debug_to_console($_brett[floor($i/7)][$i%7]);
-					if ($_brett[floor($i/7)][$i%7] != $_leer) {
-						$isBlocked = true;
-						debug_to_console("Da ist ein ".$_brett[floor($i/7)][$i%7]." im Weg");
+					debug_to_console("7floor:".floor($i/7)." & Modulo: ". $i%8);
+					debug_to_console($_brett[floor($i/7)][$i%8]);
+					if ($_brett[floor($i/7)][$i%8] == $_leer) {
+						$isBlocked = false;
+						debug_to_console("Da ist ein ".$_brett[floor($i/7)][$i%8]." im Weg");
 						break;
 					}
 					
@@ -34,11 +34,12 @@ function checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $_feldFigurFarbe, 
 
 			for ($i=$pos1+($richtung*9); $i < $pos2 || $i > $pos2 ; $i=$i+($richtung*9))
 				{
-					debug_to_console("floor:".floor($i/7)." & Modulo: ". $i%7);
-					debug_to_console($_brett[floor($i/7)][$i%7]);
-					if ($_brett[floor($i/7)][$i%7] != $_leer) {
-						$isBlocked = true;
-						debug_to_console("Da ist ein ".$_brett[floor($i/7)][$i%7]." im Weg");
+					debug_to_console("9floor:".floor($i/7)." & Modulo: ". $i%8);
+					debug_to_console($_brett[floor($i/7)][$i%8]);
+					debug_to_console("aktuelle pos:".$i);
+					if ($_brett[floor($i/7)][$i%8] == $_leer) {
+						$isBlocked = false;
+						debug_to_console("Da ist ein ".$_brett[floor($i/7)][$i%8]." im Weg");
 						break;
 					}
 				}
