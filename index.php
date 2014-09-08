@@ -8,14 +8,15 @@
 	
 	
 	<?php
+	session_start();
 			include './rules/bauer.php';
 			include './rules/turm.php';
 			include './rules/dame.php';
 			include './rules/konig.php';
 			include './rules/laufer.php';
 			include './rules/pferd.php';
-
-
+			include './rules/schach.php';
+			include './rules/zuglogik.php';
 
 
 		 //Funktion um PHP Funktionen zu debuggen
@@ -34,6 +35,13 @@
 		   return mb_convert_encoding('&#' . intval($u) . ';', 'UTF-8', 'HTML-ENTITIES');
                                      
 		}
+		//Hilfsfunktion zum speichern der logdaten
+		function logToFile($strV) 
+		{
+			$datei = fopen("schachverlauf.txt", "a");
+			fputs($datei, $strV);
+			fclose($datei);									
+		};
 
 		$WEISS = "w";
 		$SCHWARZ = "s";
@@ -47,104 +55,9 @@
 		$figurPfad='./schachimg/';
 		$leer = 'leer';
 	
-		/**
-		 * [isZugErlaubt checkt ob der Zug erlaubt ist]
-		 * @param  [int] $_vZ - VonZug
-		 * @param  [int] $_vS - VonSpalte
-		 * @param  [int] $_nZ - nachZeile
-		 * @param  [int] $_nS - nachSpalte
-		 * @param  [array] $_brett
-		 * @param  [string] $_leer
-		 * @return [boolean]
-		 */
-		function isZugErlaubt($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $_zugFarbe, $_4Schach)
-		{
-
-				//ENUM
-				$WEISS = "w";
-				$SCHWARZ = "s";
-
-				$br = "<br/>";
 	
-				$boo = false;
-				
-			//Wenn die Zugnummer gerade ist, ist weiß am Zug wenn es ungerade ist schwarz	
-								
-			//---------Quellfigur			
-			$rawFigur = $_brett[$_vZ][$_vS];
-			$figurFarbe = ($rawFigur[0] == $WEISS ? $WEISS : "");
-			$figurName = ($figurFarbe == $WEISS ? substr($rawFigur, 1) : substr($rawFigur, 0));
-
 	
-			//------ Ziel Position
-			$zielPosition = $_brett[$_nZ][$_nS];
-			$zielPositionIsLerr = ($zielPosition == "leer" ? true : false);
 	
-			$feldFigurFarbe = (!$zielPositionIsLerr && $zielPosition[0] == $WEISS ) ? $WEISS : $SCHWARZ ;
-		
-			
-			//Wenn die _zugFarbe ungleich der Figurfarbe? Quasi das der Spieler die richtige Farbe bewegt
-			if($_zugFarbe != $figurFarbe)
-			{
-				
-				//debug_to_console("Figurname: ".$figurFarbe. $figurName);
-			
-				switch($figurName){
-					
-					case ("bauer"):
-					
-					 	$isZugKorrekt = checkBauer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
-						
-						break;
-					case("turm"):
-						
-					 	$isZugKorrekt = checkTurm($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
-		
-						break;
-					case("laufer"):
-						
-					 	$isZugKorrekt = checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
-						break;
-					
-					case("pferd"):
-						
-						$isZugKorrekt = checkPferd($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
-						break;
-	
-					case("konig"):
-						$isZugKorrekt = checkKonig($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
-						break;
-						
-					 
-					case("dame"):
-									
-						
-						$isZugKorrekt = checkTurm($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe) || checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe) ? true : false;
-
-						break;
-					default:
-						
-						$isZugKorrekt = false;
-						break;
-				}
-
-			}
-			else{
-				debug_to_console("Zug nicht erlaubt -- Farben gleich");
-				$isZugKorrekt = false;
-			}
-
-			
-			return $isZugKorrekt;
-		}
-	
-	//Hilfsfunktion zum speichern der logdaten
-	function logToFile($strV) 
-	{
-		$datei = fopen("schachverlauf.txt", "a");
-		fputs($datei, $strV);
-		fclose($datei);									
-	};
 	
 	
 	$_zug_erlaubt = false;
@@ -168,19 +81,16 @@
 
 						$nZ = (($_GET['nachZ']-8)*-1)+1;
 						$nS = ord (strtoupper($_GET['nachS']))-64;
-						echo "nZ:".$nZ;
-						echo "nS:".$nS;
-						echo "--------------";
+						
 						$_zug_erlaubt = isZugErlaubt($vZ, $vS, $nZ, $nS, $brett, $leer, $zugNum, false);
 					
-					//TODO Gucken Feierbaned
+						//TODO Gucken Feierbaned
 						if($_zug_erlaubt){
 							debug_to_console("Zug erlaubt!!!!!!");
 							
 							$brett[$nZ][$nS]=$brett[$vZ][$vS];
 							$brett[$vZ][$vS]=$leer;
 							
-							include '/rules/schach.php';
 							$isSchach = SchachPrufung($brett,$nZ,$nS,$zugNum,$leer,true);
 								 
 							$zugNum++;
@@ -212,7 +122,10 @@
 		<body>
 		<h1>Schachfigurenbrett</h1>
 		<form name="Eingabe" action="index.php " method="get"> Spieler: <?php echo "$zugFarbe";?> Bitte geben Sie Ihren Zug ein <br>
-			
+			<div id="playerbox">
+				Dein Spielername:<input type="text" name="Spielername">
+									
+			</div>
 			<div>
 				<p>Von Spalte
 				<input type="text" id="vonS" size="1" maxlength="1" name="vonS">
@@ -249,14 +162,14 @@ echo("<table>");
 											<span>'.$c[0].$c[1].'</span>';
 
 							//Vorbereitung des ImgStrings
-							$wayImg = '<img id="'.$i.$c[1].'" src="'.$figurPfad.$brett[$j][$i].$png.'" 
-											onclick="setFormFields('.$i.','.$c[1].',false);" >
+							$wayImg = '<img  id="'.$i.$c[1].'" src="'.$figurPfad.$brett[$j][$i].$png.'" 
+											onclick="setFormFields('.$i.','.$c[1].',false); ondrag();" >
 										<span>'.$c[0].$c[1].'</span>';
 
 							//String wird zusammengesetzt				
 							$fieldcontent = ($brett[$j][$i] == "leer") ? $emptydiv : $wayImg;
 							
-							echo'<td>'.$fieldcontent.'</td>';
+							echo'<td id="'. $c[1].$i.'" ondrop="drop(event)" ondragover="allowDrop(event)">'.$fieldcontent.'</td>';
 						}
 						echo'</tr>';
 					}  
