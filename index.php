@@ -8,6 +8,16 @@
 	
 	
 	<?php
+			include './rules/bauer.php';
+			include './rules/turm.php';
+			include './rules/dame.php';
+			include './rules/konig.php';
+			include './rules/laufer.php';
+			include './rules/pferd.php';
+
+
+
+
 		 //Funktion um PHP Funktionen zu debuggen
         function debug_to_console( $data ) {
 
@@ -47,10 +57,8 @@
 		 * @param  [string] $_leer
 		 * @return [boolean]
 		 */
-		function isZugErlaubt($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $_zugFarbe)
+		function isZugErlaubt($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $_zugFarbe, $_4Schach)
 		{
-				debug_to_console("Fuction isZugerLaubt");
-				debug_to_console("isZugErlaubt-paras:".$_vZ.",".$_vS.",".$_nZ.",".$_nS.",".$_leer);
 
 				//ENUM
 				$WEISS = "w";
@@ -61,63 +69,56 @@
 				$boo = false;
 				
 			//Wenn die Zugnummer gerade ist, ist weiß am Zug wenn es ungerade ist schwarz	
-			debug_to_console("$_zugFarbe");
 								
 			//---------Quellfigur			
 			$rawFigur = $_brett[$_vZ][$_vS];
 			$figurFarbe = ($rawFigur[0] == $WEISS ? $WEISS : "");
 			$figurName = ($figurFarbe == $WEISS ? substr($rawFigur, 1) : substr($rawFigur, 0));
 
-			debug_to_console ("Figur war:".$figurFarbe.$figurName);
 	
 			//------ Ziel Position
 			$zielPosition = $_brett[$_nZ][$_nS];
 			$zielPositionIsLerr = ($zielPosition == "leer" ? true : false);
 	
 			$feldFigurFarbe = (!$zielPositionIsLerr && $zielPosition[0] == $WEISS ) ? $WEISS : $SCHWARZ ;
-			debug_to_console ("Gegner ist/war ".$feldFigurFarbe.$zielPosition." <br>");
 		
 			
 			//Wenn die _zugFarbe ungleich der Figurfarbe? Quasi das der Spieler die richtige Farbe bewegt
 			if($_zugFarbe != $figurFarbe)
 			{
 				
-				debug_to_console("Figurname: ". $figurName);
+				//debug_to_console("Figurname: ".$figurFarbe. $figurName);
+			
 				switch($figurName){
-				 
+					
 					case ("bauer"):
 					
-					 	include './rules/'.$figurName.'.php';
 					 	$isZugKorrekt = checkBauer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 						
 						break;
 					case("turm"):
 						
-					 	include './rules/'.$figurName.'.php';
 					 	$isZugKorrekt = checkTurm($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 		
 						break;
 					case("laufer"):
 						
-						include './rules/'.$figurName.'.php';
 					 	$isZugKorrekt = checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 						break;
 					
 					case("pferd"):
 						
-						include './rules/'.$figurName.'.php';
 						$isZugKorrekt = checkPferd($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 						break;
 	
-					case("koenig"):
-						
-						
+					case("konig"):
+						$isZugKorrekt = checkKonig($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe);
 						break;
+						
+					 
 					case("dame"):
+									
 						
-						
-						include './rules/turm.php';
-						include './rules/laufer.php';
 						$isZugKorrekt = checkTurm($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe) || checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe) ? true : false;
 
 						break;
@@ -131,7 +132,6 @@
 			else{
 				debug_to_console("Zug nicht erlaubt -- Farben gleich");
 				$isZugKorrekt = false;
-				echo "Falscher Spieler <br>";
 			}
 
 			
@@ -171,15 +171,19 @@
 						echo "nZ:".$nZ;
 						echo "nS:".$nS;
 						echo "--------------";
-						$_zug_erlaubt = isZugErlaubt($vZ, $vS, $nZ, $nS, $brett, $leer, $zugNum);
+						$_zug_erlaubt = isZugErlaubt($vZ, $vS, $nZ, $nS, $brett, $leer, $zugNum, false);
 					
 					//TODO Gucken Feierbaned
 						if($_zug_erlaubt){
 							debug_to_console("Zug erlaubt!!!!!!");
-							$zugNum++;
+							
 							$brett[$nZ][$nS]=$brett[$vZ][$vS];
 							$brett[$vZ][$vS]=$leer;
 							
+							include '/rules/schach.php';
+							$isSchach = SchachPrufung($brett,$nZ,$nS,$zugNum,$leer,true);
+								 
+							$zugNum++;
 						}
 						 
 						$Weitergabe = serialize($brett); 
@@ -197,7 +201,7 @@
 						array('','leer','leer','leer','leer','leer','leer','leer','leer'),
 						array('','leer','leer','leer','leer','leer','leer','leer','leer'),
 						array('','wbauer','wbauer','wbauer','wbauer','wbauer','wbauer','wbauer','wbauer'),
-						array('','wturm','wpferd','wlaufer','wkonig','wdame','wlaufer','wpferd','wturm')
+						array('','wturm','wpferd','wlaufer','wdame','wkonig','wlaufer','wpferd','wturm')
 						
 					); 
 		

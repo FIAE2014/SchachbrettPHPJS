@@ -7,42 +7,51 @@ function checkLaufer($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $_feldFigurFarbe, 
 	$isZugKorrekt = false;
 	
 	$abstand = 	($_vZ*8+$_vS)-($_nZ*8+$_nS);
-	$richtung = ($_vZ*8+$_vS) < ($_nZ*8+$_nS) ? 1 : -1;
-	$isBlocked = true;
+	$richtungH = ($_vZ*8+$_vS) < ($_nZ*8+$_nS) ? 1 : -1;
+	$richtungV = $_vS > $_nS ? -1 : 1;
+	$isBlocked = false;
 	$pos1 = ($_vZ*7+$_vS); echo "$pos1";
 	$pos2 = ($_nZ*7+$_nS); echo "$pos2";
 	$isRichtunOK = false;
 
 
-			if ($abstand%7==0) {
-				$isRichtunOK = true;
-				for ($i=$pos1+($richtung*7); $i < $pos2 || $i > $pos2 ; $i=$i+($richtung*7))
-				{
+	if ($abstand%7==0) {
+		$isRichtunOK = true;
 
-					debug_to_console("7floor:".floor($i/7)." & Modulo: ". $i%8);
-					debug_to_console($_brett[floor($i/7)][$i%8]);
-					if ($_brett[floor($i/7)][$i%8] == $_leer) {
-						$isBlocked = false;
-						debug_to_console("Da ist ein ".$_brett[floor($i/7)][$i%8]." im Weg");
-						break;
-					}
 					
+					
+		for ($s=$_vS+$richtungV,$z=$_vZ+$richtungH; $z*7+$s!=$_nZ*7+$_nS; $s+=$richtungV,$z+=$richtungH)
+		{
+				/*debug_to_console("Von:".($z*7+$s)." Nach:".($_nZ*7+$_nS));
+				debug_to_console("Wir sind im Feld: ".$z.", ".$s);
+				debug_to_console($_brett[$z][$s]);
+*/
+				if ($_brett[$z][$s] != "leer") {
+					//debug_to_console("Das ist im Weg:".$_brett[$z][$s]);
+					$isBlocked = true;
+					break;
 				}
+
+		}
+					
+			
 				 
 			} elseif($abstand%9==0) {
 				$isRichtunOK = true;
 
-			for ($i=$pos1+($richtung*9); $i < $pos2 || $i > $pos2 ; $i=$i+($richtung*9))
-				{
-					debug_to_console("9floor:".floor($i/7)." & Modulo: ". $i%8);
-					debug_to_console($_brett[floor($i/7)][$i%8]);
-					debug_to_console("aktuelle pos:".$i);
-					if ($_brett[floor($i/7)][$i%8] == $_leer) {
-						$isBlocked = false;
-						debug_to_console("Da ist ein ".$_brett[floor($i/7)][$i%8]." im Weg");
-						break;
-					}
+		for ($s=$_vS+$richtungV,$z=$_vZ+$richtungH; $z*7+$s!=$_nZ*7+$_nS; $s+=$richtungV,$z+=$richtungH)
+		{
+/*				debug_to_console("Von:".($z*7+$s)." Nach:".($_nZ*7+$_nS));
+				debug_to_console("Wir sind im Feld: ".$z." ".$s);
+				debug_to_console($_brett[$z][$s]);
+*/
+				if ($_brett[$z][$s] != "leer") {
+					//debug_to_console("Das ist im Weg:".$_brett[$z][$s]);
+					$isBlocked = true;
+					break;
 				}
+
+		}
 
 			}
 			$isZugKorrekt = !$isBlocked && $isRichtunOK ? true : false;

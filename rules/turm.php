@@ -2,7 +2,6 @@
 
 	function checkTurm($_vZ, $_vS, $_nZ, $_nS, $_brett, $_leer, $feldFigurFarbe, $figurFarbe){
 		//Zeile Von und _Nach sind gleich aber Spalte verschieden ansonsten ungedreht
-		debug_to_console('checkD1');
 		
 						if ($_vZ == $_nZ && $_vS != $_nS) {
 							
